@@ -1,0 +1,179 @@
+openapi: 3.0.0
+
+info:
+  version: 1.0.0
+  title: problem 1
+  description: dsa
+
+servers:
+  - url: http://localhost:8080/studentManagment
+
+paths:
+  /user/add:
+    post:
+      description: add new user
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/Learner_Prof"
+
+      responses:
+        "200":
+          description: successfully added user
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ResObject"
+        "400":
+          description: failed to add user
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ResObject"
+
+  /user/update:
+    post:
+      description: update user
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/Learner_Prof"
+
+      responses:
+        "200":
+          description: successfully updated learner
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ResObject"
+        "400":
+          description: failed to update learner
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ResObject"
+
+  # /learningMaterials/{learner}:
+  #   get:
+  #     description: get material
+  #     parameters:
+  #       - name: learner
+  #         in: path
+  #         description: existing learner profile
+  #         required: true
+  #         schema:
+  #           $ref: "#components/schemas/Learner_Prof"
+  #     responses:
+  #       "200":
+  #         description: successfully retrieved material
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#components/schemas/ResObject"
+  #       "400":
+  #         description: failed to retrieve material
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#components/schemas/ResObject"
+
+components:
+  schemas:
+    Learner_Prof:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        preferred_formats:
+          type: array
+          items:
+            type: string
+        past_subjects:
+          type: array
+          items:
+            type: object
+            properties:
+              course:
+                type: string
+              score:
+                type: string
+            required:
+              - course
+              - score
+      required:
+        - username
+        - firstName
+        - lastName
+        - preferred_formats
+        - past_subjects
+
+    Learning_Material:
+      type: object
+      properties:
+        course:
+          type: string
+        learning_objects:
+          type: object
+          properties:
+            audio:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  difficulty:
+                    type: string
+            video:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  difficulty:
+                    type: string
+            text:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  difficulty:
+                    type: string
+      required:
+        - course
+        - learning_objects
+
+    ReqObject:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    ResObject:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
