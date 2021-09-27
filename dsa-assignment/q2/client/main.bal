@@ -23,6 +23,70 @@ public function main() {
         io:println("Success: ", addFnsRes.message);
     }
 
+    AddFnsReq[] addFnsReq = [
+        { // should succeed
+        fn: {
+            devEmail: "test@test",
+            keywords: ["testing", "test"],
+            versionNum: 1,
+            name: "test1",
+            lang: "test1",
+            devName: "test1",
+            fnDef: "test1"
+        }
+    }, 
+        { // should fail
+        fn: {
+            devEmail: "test@test",
+            keywords: ["testing", "test"],
+            versionNum: 1,
+            name: "test1",
+            lang: "test1",
+            devName: "test1",
+            fnDef: "test1"
+        }
+    }, 
+        { // should succeed
+        fn: {
+            devEmail: "test@test",
+            keywords: ["testing", "test"],
+            versionNum: 1,
+            name: "test2",
+            lang: "test2",
+            devName: "test2",
+            fnDef: "test2"
+        }
+    }
+    ];
+    Add_fnsStreamingClient|grpc:Error addFnsStream = ep->add_fns();
+    if addFnsStream is error {
+        io:println("error added fns: ", addFnsStream.message());
+    } else {
+        foreach AddFnsReq aFReq in addFnsReq {
+            grpc:Error? err = addFnsStream->sendAddFnsReq(aFReq);
+            if err is error {
+                io:println("Failed to send addFns req");
+            }
+        }
+
+        grpc:Error? err = addFnsStream->complete();
+        if err is error {
+            io:println("Failed to send complete message");
+        } else {
+            AddFnsRes|grpc:Error? fnsRes = addFnsStream->receiveAddFnsRes();
+            if fnsRes is error {
+                io:println("Failed to retrieve addFnsRes: ", fnsRes.message());
+            } else {
+                if fnsRes is AddFnsRes {
+                    foreach string msg in fnsRes.funcNames {
+                        io:println("Success: ", msg);
+                    }
+                }
+            }
+        }
+
+    }
+
     ShowFnReq showFnReq = {
         funcName: "helloWorld",
         versionNum: 1

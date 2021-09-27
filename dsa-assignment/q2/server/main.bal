@@ -59,8 +59,26 @@ service "ReposityOfFunctions" on ep {
         return error("Function not found");
     }
 
-    remote function add_fns(stream<AddFnsReq, grpc:Error?> clientStream) returns AddFnRes|error {
-        return error("Not implemented");
+    remote function add_fns(stream<AddFnsReq, grpc:Error?> clientStream) returns AddFnsRes|error {
+        Fn[] fnsToPush = [];
+        AddFnsRes res = {
+            funcNames: []
+        };
+        error? e = clientStream.forEach(function(AddFnsReq req) {
+            boolean multipleVals = false;
+            foreach Fn fn in fnsToPush {
+                if fn.name == req.fn.name {
+                    res.funcNames.push("Failed to add fn: " + fn.name + ", ,multiple versions detected");
+                    multipleVals = true;
+                    break;
+                }
+            }
+            if !multipleVals {
+                fnsToPush.push(req.fn);
+                res.funcNames.push("Successfully added fn: " + req.fn.name);
+            }
+        });
+        return res;
     }
 
     remote function show_all_fns(ShowAllFnsReq value) returns stream<ShowAllFnsRes, error?>|error {
