@@ -64,7 +64,19 @@ service "ReposityOfFunctions" on ep {
     }
 
     remote function show_all_fns(ShowAllFnsReq value) returns stream<ShowAllFnsRes, error?>|error {
-        return error("Not implemented");
+        ShowAllFnsRes[] resToReturn = [];
+        foreach Fn fn in fns {
+            if fn.name == value.funcName {
+                ShowAllFnsRes res = {
+                    fn: fn
+                };
+                resToReturn.push(res);
+            }
+        }
+        if resToReturn.length() == 0 {
+            return error("No fn versions found");
+        }
+        return resToReturn.toStream();
     }
 
     remote function show_all_with_criteria(stream<ShowAllWithCritReq, grpc:Error?> clientStream) returns stream<ShowAllWithCritRes, error?>|error {

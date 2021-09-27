@@ -34,6 +34,18 @@ public function main() {
         io:println("Success: ", showFnRes);
     }
 
+    ShowAllFnsReq showAllFnsReq = {
+        funcName: "helloWorld"
+    };
+    stream<ShowAllFnsRes, grpc:Error?>|grpc:Error showAllFnsStream = ep->show_all_fns(showAllFnsReq);
+    if showAllFnsStream is error {
+        io:println("Failed to show all fns: ", showAllFnsStream.message());
+    } else {
+        error? e = showAllFnsStream.forEach(function(ShowAllFnsRes res) {
+            io:println("Successfully retrieved fn: ", res.fn.name);
+        });
+    }
+
     DeleteFnReq delFnReq = {
         funcName: "helloWorld",
         versionNum: 1
@@ -44,4 +56,5 @@ public function main() {
     } else {
         io:println("Success: ", delRes.message);
     }
+
 }
