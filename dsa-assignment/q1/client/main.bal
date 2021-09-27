@@ -4,15 +4,15 @@ Client ep = check new;
 
 public function main() {
     LearnerProf learner = {
-        username: "era", 
-        firstName: "era", 
-        lastName: "matheus", 
-        preferred_formats: ["text", "audio", "video"], 
+        username: "era",
+        firstName: "era",
+        lastName: "matheus",
+        preferred_formats: ["text", "audio", "video"],
         past_subjects: [
             {
-                score: "A", 
-                course: "DSA"
-            }
+            score: "A",
+            course: "DSA"
+        }
         ]
     };
 
@@ -29,6 +29,13 @@ public function main() {
         io:println("Error occured while updating user: ", res.message());
     } else {
         io:println("Successfully updated user: ", res.message);
+    }
+
+    TopicResObject[]|error materials = ep->learningMaterialsBylearner("era");
+    if materials is error {
+        io:println("Error occured while retrieving materials: ", materials.message());
+    } else {
+        io:println("Material retrieved: ", materials);
     }
 
 }

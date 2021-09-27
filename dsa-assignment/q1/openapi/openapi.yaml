@@ -59,29 +59,31 @@ paths:
               schema:
                 $ref: "#components/schemas/ResObject"
 
-  # /learningMaterials/{learner}:
-  #   get:
-  #     description: get material
-  #     parameters:
-  #       - name: learner
-  #         in: path
-  #         description: existing learner profile
-  #         required: true
-  #         schema:
-  #           $ref: "#components/schemas/Learner_Prof"
-  #     responses:
-  #       "200":
-  #         description: successfully retrieved material
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#components/schemas/ResObject"
-  #       "400":
-  #         description: failed to retrieve material
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#components/schemas/ResObject"
+  /learningMaterials/{learner}:
+    get:
+      description: get material
+      parameters:
+        - name: learner
+          in: path
+          description: existing learner profile
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successfully retrieved material
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/TopicResObject"
+        "400":
+          description: failed to retrieve material
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ResObject"
 
 components:
   schemas:
@@ -123,44 +125,59 @@ components:
         course:
           type: string
         learning_objects:
-          type: object
-          properties:
-            audio:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  difficulty:
-                    type: string
-            video:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  difficulty:
-                    type: string
-            text:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  difficulty:
-                    type: string
+          $ref: "#components/schemas/LearningObject"
       required:
         - course
         - learning_objects
+
+    LearningObject:
+      type: object
+      properties:
+        audio:
+          type: array
+          items:
+            $ref: "#components/schemas/MaterialObject"
+        video:
+          type: array
+          items:
+            $ref: "#components/schemas/MaterialObject"
+        text:
+          type: array
+          items:
+            $ref: "#components/schemas/MaterialObject"
+
+      required:
+        - text
+        - audio
+        - video
+
+    MaterialObject:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: string
+      required:
+        - name
+        - description
+        - difficulty
+
+    TopicResObject:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: string
+      required:
+        - name
+        - description
+        - difficulty
 
     ReqObject:
       type: object
