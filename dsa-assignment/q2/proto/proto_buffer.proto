@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+service ReposityOfFunctions {
+  rpc add_new_fn(AddFnReq) returns (AddFnRes);
+  rpc add_fns(stream AddFnsReq) returns (AddFnRes);
+  rpc delete_fn(DeleteFnReq) returns (DeleteFnRes);
+  rpc show_fn(ShowFnReq) returns (ShowFnRes);
+  rpc show_all_fns(ShowAllFnsReq) returns (stream ShowAllFnsRes);
+  rpc show_all_with_criteria(stream ShowAllWithCritReq)
+      returns (stream ShowAllWithCritRes);
+}
+
+message Fn {
+  string name = 1;
+  int32 versionNum = 2;
+  string lang = 3;
+  repeated string keywords = 4;
+  string devName = 5;
+  string devEmail = 6;
+  string fnDef = 7;
+}
+
+message AddFnReq { Fn fn = 1; }
+message AddFnsReq { Fn fn = 1; }
+message DeleteFnReq {
+  string funcName = 1;
+  int32 versionNum = 2;
+}
+message ShowFnReq {
+  string funcName = 1;
+  int32 versionNum = 2;
+}
+message ShowAllFnsReq { string funcName = 1; }
+message ShowAllWithCritReq {
+  string lang = 1;
+  repeated string keywords = 2;
+}
+
+message AddFnRes { string message = 1; }
+message AddFnsRes { repeated string funcNames = 1; }
+message DeleteFnRes { string message = 1; }
+message ShowFnRes { Fn fn = 1; }
+message ShowAllFnsRes { Fn fn = 1; }
+message ShowAllWithCritRes { Fn fn = 1; }
