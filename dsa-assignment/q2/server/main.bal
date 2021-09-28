@@ -26,23 +26,19 @@ service "ReposityOfFunctions" on ep {
 
     remote function delete_fn(DeleteFnReq value) returns DeleteFnRes|error {
         boolean reorder = false;
-        foreach Fn fn in fns {
-
-            if fn.name == value.funcName && reorder {
-                int? index = fns.indexOf(fn);
-                if index is int {
-                    fns[index].versionNum -= 1;
-                }
+        int i = 0;
+        while i < fns.length() {
+            if fns[i].name == value.funcName && reorder {
+                fns[i].versionNum -= 1;
             }
 
-            if fn.name == value.funcName && fn.versionNum == value.versionNum && !reorder {
-                int? index = fns.indexOf(fn);
-                if index is int {
-                    Fn err = fns.remove(index);
-                    reorder = true;
-                }
+            if fns[i].name == value.funcName && fns[i].versionNum == value.versionNum && !reorder {
+                Fn err = fns.remove(i);
+                reorder = true;
+                i -= 1;
             }
 
+            i += 1;
         }
         if reorder {
             return {message: "Successfully deleted fn"};
@@ -78,6 +74,10 @@ service "ReposityOfFunctions" on ep {
                 res.funcNames.push("Successfully added fn: " + req.fn.name);
             }
         });
+        foreach Fn fn in fnsToPush {
+            fns.push(fn);
+        }
+
         return res;
     }
 
@@ -98,6 +98,44 @@ service "ReposityOfFunctions" on ep {
     }
 
     remote function show_all_with_criteria(stream<ShowAllWithCritReq, grpc:Error?> clientStream) returns stream<ShowAllWithCritRes, error?>|error {
-        return error("Not implemented");
+        ShowAllWithCritRes[] responses = [];
+        error? e = clientStream.forEach(function(ShowAllWithCritReq req) {
+            ShowAllWithCritRes resToPush = {
+                fns: []
+            };
+            map<Fn> latestVersions = {};
+            foreach Fn fn in fns {
+                boolean found = false;
+                if fn.lang == req.lang && req.lang != "" {
+                    latestVersions[fn.name] = fn;
+                    found = true;
+                }
+                if !found {
+                    boolean keywordMatch = false;
+                    foreach string fnKeyword in fn.keywords {
+                        foreach string keyword in req.keywords {
+                            if fnKeyword == keyword {
+                                latestVersions[fn.name] = fn;
+                                keywordMatch = true;
+                                break;
+                            }
+                        }
+                        if keywordMatch {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            latestVersions.forEach(function(Fn fn) {
+                resToPush.fns.push(fn);
+            });
+
+            responses.push(resToPush);
+        });
+        if e is error {
+            return error("Failed to read requests");
+        }
+        return responses.toStream();
     }
 }
