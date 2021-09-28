@@ -79,7 +79,7 @@ public function main() {
             } else {
                 if fnsRes is AddFnsRes {
                     foreach string msg in fnsRes.funcNames {
-                        io:println("Success: ", msg);
+                        io:println(msg);
                     }
                 }
             }
@@ -110,6 +110,41 @@ public function main() {
         });
     }
 
+    ShowAllWithCritReq[] showAllWithCritReqs = [{
+        keywords: ["testing", "beginner"],
+        lang: ""
+    }];
+    Show_all_with_criteriaStreamingClient|grpc:Error showAllWithCritStream = ep->show_all_with_criteria();
+    if showAllWithCritStream is error {
+        io:println("error occured setting up showAllWithCrit stream: ", showAllWithCritStream.message());
+    } else {
+        foreach ShowAllWithCritReq showAllWithCritReq in showAllWithCritReqs {
+            error? err = showAllWithCritStream->sendShowAllWithCritReq(showAllWithCritReq);
+            if err is error {
+                io:println("failed to send showAllWithCriteria req: ", err.message());
+            }
+        }
+        error? err = showAllWithCritStream->complete();
+        if err is error {
+            io:println("failed to send showAllWithCriteria complete message: ", err.message());
+        }
+
+        ShowAllWithCritRes|grpc:Error? showAllWithCritRes = showAllWithCritStream->receiveShowAllWithCritRes();
+        while true {
+            if showAllWithCritRes is error {
+                io:println("failed to send showAllWithCriteria complete message: ", showAllWithCritRes.message());
+                break;
+            } else {
+                if showAllWithCritRes is () {
+                    break;
+                } else {
+                    io:println("showAllWithCriteria response: ", showAllWithCritRes.fns);
+                    showAllWithCritRes = showAllWithCritStream->receiveShowAllWithCritRes();
+                }
+            }
+        }
+    }
+
     DeleteFnReq delFnReq = {
         funcName: "helloWorld",
         versionNum: 1
@@ -120,5 +155,4 @@ public function main() {
     } else {
         io:println("Success: ", delRes.message);
     }
-
 }

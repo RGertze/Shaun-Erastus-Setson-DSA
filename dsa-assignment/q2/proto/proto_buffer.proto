@@ -41,4 +41,4 @@ message AddFnsRes { repeated string funcNames = 1; }
 message DeleteFnRes { string message = 1; }
 message ShowFnRes { Fn fn = 1; }
 message ShowAllFnsRes { Fn fn = 1; }
-message ShowAllWithCritRes { Fn fn = 1; }
+message ShowAllWithCritRes { repeated Fn fns = 1; }
